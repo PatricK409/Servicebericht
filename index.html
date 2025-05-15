@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicebericht Formular</title>
+  <style>
+    body { font-family: 'Times New Roman', serif; background-color: #1e1e1e; color: #e0e0e0; padding: 20px; }
+    h1, h2 { color: #ffffff; }
+    h2 { border-bottom: 2px solid #444; padding-bottom: 5px; margin-top: 30px; }
+    label { display: block; margin: 10px 0 5px; font-weight: bold; color: #ccc; }
+    input, select, textarea {
+      width: 100%; padding: 8px; margin-bottom: 15px;
+      background-color: #2c2c2c; color: #f0f0f0; border: 1px solid #555;
+      font-family: 'Times New Roman', serif;
+    }
+    .section {
+      background: #2a2a2a; border: 1px solid #444; padding: 15px;
+      border-radius: 8px; margin-bottom: 20px;
+    }
+    .checkbox-group {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .checkbox-group label { display: flex; align-items: center; font-weight: normal; white-space: nowrap; color: #ddd; }
+    .checkbox-group input[type="checkbox"] { margin-right: 10px; width: 22px; height: 22px; }
+    .anlage-input { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Servicebericht Generator</h1>
+  <div class="section">
+    <h2>Anlageninformationen</h2>
+    <label for="psp">PSP-Element:</label>
+    <input type="text" id="psp">
+    <label for="sprache">Sprache:</label>
+    <input type="text" id="sprache" placeholder="DE">
+    <label for="anlagenanzahl">Anzahl Anlagen:</label>
+    <select id="anlagenanzahl">
+      <option value="">Bitte wählen</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <div id="anlagenfelder"></div>
+  </div>
+  <div class="section">
+    <h2>Anlagenangaben</h2>
+    <div class="checkbox-group">
+      <label><input type="checkbox"> Einhängevorrichtung kontrolliert</label>
+      <label><input type="checkbox"> Positionierer vorhanden</label>
+      <label><input type="checkbox"> Ausbrennerfilter gereinigt</label>
+      <label><input type="checkbox"> Ofenzopf vorhanden</label>
+      <label><input type="checkbox"> Differenzdruckregelung vorhanden</label>
+      <label><input type="checkbox"> Lambdasonden vorhanden</label>
+      <label><input type="checkbox"> Temperaturregelstrecke geprüft</label>
+      <label><input type="checkbox"> Sperrgas Ausbrenner geprüft</label>
+      <label><input type="checkbox"> Brenngasfilter gereinigt</label>
+      <label><input type="checkbox"> Sperrgas H₂ geprüft</label>
+      <label><input type="checkbox"> Feldleitung gereinigt</label>
+    </div>
+  </div>
+  <div class="section">
+    <h2>Auffälligkeiten und zusätzliche Arbeiten</h2>
+    <label for="auffaelligkeiten">Beschreibung:</label>
+    <textarea id="auffaelligkeiten" rows="8"></textarea>
+  </div>
+  <div class="section">
+    <h2>Vorschau (Berichtsstruktur)</h2>
+    <textarea readonly rows="20" id="preview" style="width:100%; background:#1a1a1a; color:#ddd; border:1px solid #555;"></textarea>
+  </div>
+  <div style="text-align:center;">
+    <button id="downloadBtn" style="padding: 10px 20px; font-size: 16px; background-color: #444; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+      Servicebericht herunterladen (.txt)
+    </button>
+  </div>
+  <script>
+    function createReportText() {
+      const psp = document.getElementById("psp").value;
+      const sprache = document.getElementById("sprache").value;
+      const auff = document.getElementById("auffaelligkeiten").value;
+      const anlagenDivs = document.querySelectorAll("#anlagenfelder .anlage-input");
+
+      let anlagenUebersicht = "1. Anlagenübersicht
+";
+      anlagenDivs.forEach((div, index) => {
+        const inputs = div.querySelectorAll("input");
+        anlagenUebersicht += `Anlage ${index + 1}:
+`;
+        anlagenUebersicht += `  - Nummer: ${inputs[0].value}
+`;
+        anlagenUebersicht += `  - Bezeichnung: ${inputs[1].value}
+`;
+        anlagenUebersicht += `  - Sockel-Nr.: ${inputs[2].value}
+`;
+        anlagenUebersicht += `  - Kundenbezeichnung: ${inputs[3].value}
+`;
+      });
+
+      const checkboxes = document.querySelectorAll(".checkbox-group input[type='checkbox']");
+      let allgemein = "
+2. Allgemein
+";
+      checkboxes.forEach(cb => {
+        const label = cb.parentElement.textContent.trim();
+        allgemein += `${label}: ${cb.checked ? "Ja" : "Nein"}
+`;
+      });
+
+      const weitereAbschnitte = `
+12. Weitere Abschnitte (z. B. Temperaturmessung, HMI, Elektrik)
+Auffälligkeiten:
+${auff}`;
+      const header = `KUNDE:           
+PSP-NUMMER:      ${psp}
+SPRACHE:         ${sprache.toUpperCase()}
+`;
+      const gliederung = `
+**Servicebericht**
+
+${anlagenUebersicht}${allgemein}
+3. General
+4. Sockel
+5. Ventilstand "V"
+6. Heizhaube "GH"
+7. Kühlhaube "KH"
+8. Schutzhaube
+9. Hydraulikaggregat "HAG"
+10. Vakuumanlage "VP" (nur wenn vorhanden)
+11. Druckregelung "DR"${weitereAbschnitte}`;
+      return `${header}
+----------------------------------------
+${gliederung}`;
+    }
+
+    function updatePreview() {
+      document.getElementById("preview").value = createReportText();
+    }
+
+    function downloadAsTextFile() {
+      updatePreview();
+      const text = document.getElementById("preview").value;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'Servicebericht.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function createAnlagenEingabe() {
+      const container = document.getElementById('anlagenfelder');
+      container.innerHTML = '';
+      const anzahl = parseInt(document.getElementById('anlagenanzahl').value);
+      if (!anzahl || isNaN(anzahl)) return;
+      for (let i = 0; i < anzahl; i++) {
+        const div = document.createElement('div');
+        div.className = 'anlage-input';
+
+        const nummerInput = document.createElement('input');
+        nummerInput.type = 'text';
+        nummerInput.placeholder = `Anlage ${i + 1} – Anlagennummer`;
+
+        const bezeichnungInput = document.createElement('input');
+        bezeichnungInput.type = 'text';
+        bezeichnungInput.placeholder = `Anlage ${i + 1} – Bezeichnung`;
+
+        const sockelInput = document.createElement('input');
+        sockelInput.type = 'text';
+        sockelInput.placeholder = `Anlage ${i + 1} – Sockel-Nr.`;
+
+        const kundenBezInput = document.createElement('input');
+        kundenBezInput.type = 'text';
+        kundenBezInput.placeholder = `Anlage ${i + 1} – Kundenbezeichnung`;
+
+        div.appendChild(nummerInput);
+        div.appendChild(bezeichnungInput);
+        div.appendChild(sockelInput);
+        div.appendChild(kundenBezInput);
+        container.appendChild(div);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("anlagenanzahl").addEventListener("change", createAnlagenEingabe);
+      document.getElementById("downloadBtn").addEventListener("click", downloadAsTextFile);
+    });
+  </script>
+</body>
+</html>
