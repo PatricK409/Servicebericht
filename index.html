@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicebericht Formular</title>
+  <style>
+    body { font-family: 'Times New Roman', serif; background-color: #1e1e1e; color: #e0e0e0; padding: 20px; }
+    h1, h2 { color: #ffffff; }
+    h2 { border-bottom: 2px solid #444; padding-bottom: 5px; margin-top: 30px; }
+    label { display: block; margin: 10px 0 5px; font-weight: bold; color: #ccc; }
+    input, select, textarea {
+      width: 100%; padding: 8px; margin-bottom: 15px;
+      background-color: #2c2c2c; color: #f0f0f0; border: 1px solid #555;
+      font-family: 'Times New Roman', serif;
+    }
+    .section {
+      background: #2a2a2a; border: 1px solid #444; padding: 15px;
+      border-radius: 8px; margin-bottom: 20px;
+    }
+    .checkbox-group {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .checkbox-group label { display: flex; align-items: center; font-weight: normal; white-space: nowrap; color: #ddd; }
+    .checkbox-group input[type="checkbox"] { margin-right: 10px; width: 22px; height: 22px; }
+    .anlage-input { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Servicebericht Generator</h1>
+
+  <div class="section">
+    <h2>Anlageninformationen</h2>
+    <label for="psp">PSP-Element:</label>
+    <input type="text" id="psp">
+    <label for="sprache">Sprache:</label>
+    <input type="text" id="sprache" placeholder="DE">
+    <label for="anlagenanzahl">Anzahl Anlagen:</label>
+    <select id="anlagenanzahl" onchange="createAnlagenEingabe()">
+      <option value="">Bitte wählen</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <div id="anlagenfelder"></div>
+  </div>
+
+  <div class="section">
+    <h2>Anlagenangaben</h2>
+    <div class="checkbox-group">
+      <label><input type="checkbox"> Einhängevorrichtung kontrolliert</label>
+      <label><input type="checkbox"> Positionierer vorhanden</label>
+      <label><input type="checkbox"> Ausbrennerfilter gereinigt</label>
+      <label><input type="checkbox"> Ofenzopf vorhanden</label>
+      <label><input type="checkbox"> Differenzdruckregelung vorhanden</label>
+      <label><input type="checkbox"> Lambdasonden vorhanden</label>
+      <label><input type="checkbox"> Temperaturregelstrecke geprüft</label>
+      <label><input type="checkbox"> Sperrgas Ausbrenner geprüft</label>
+      <label><input type="checkbox"> Brenngasfilter gereinigt</label>
+      <label><input type="checkbox"> Sperrgas H₂ geprüft</label>
+      <label><input type="checkbox"> Feldleitung gereinigt</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Auffälligkeiten pro Sockel</h2>
+    <div id="sockelAuffaelligkeiten"></div>
+  </div>
+
+  <div class="section">
+    <h2>Vorschau (Berichtsstruktur)</h2>
+    <textarea readonly rows="20" id="preview" style="width:100%; background:#1a1a1a; color:#ddd; border:1px solid #555;"></textarea>
+    <div style="text-align:center; margin-top: 10px;">
+      <button id="downloadBtn">Servicebericht herunterladen (.txt)</button>
+      <button id="updatePreviewBtn">Vorschau aktualisieren</button>
+    </div>
+  </div>
+</body>
+</html>
