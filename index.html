@@ -48,25 +48,16 @@
   </div>
 
   <div class="section">
-    <h2>Anlagenangaben</h2>
-    <div class="checkbox-group">
-      <label><input type="checkbox"> Einhängevorrichtung kontrolliert</label>
-      <label><input type="checkbox"> Positionierer vorhanden</label>
-      <label><input type="checkbox"> Ausbrennerfilter gereinigt</label>
-      <label><input type="checkbox"> Ofenzopf vorhanden</label>
-      <label><input type="checkbox"> Differenzdruckregelung vorhanden</label>
-      <label><input type="checkbox"> Lambdasonden vorhanden</label>
-      <label><input type="checkbox"> Temperaturregelstrecke geprüft</label>
-      <label><input type="checkbox"> Sperrgas Ausbrenner geprüft</label>
-      <label><input type="checkbox"> Brenngasfilter gereinigt</label>
-      <label><input type="checkbox"> Sperrgas H₂ geprüft</label>
-      <label><input type="checkbox"> Feldleitung gereinigt</label>
-    </div>
-  </div>
-
-  <div class="section">
     <h2>Auffälligkeiten pro Sockel</h2>
     <div id="sockelAuffaelligkeiten"></div>
+  </div>
+  <div class="section">
+    <h2>Auffälligkeiten pro Heizhaube</h2>
+    <div id="heizAuffaelligkeiten"></div>
+  </div>
+  <div class="section">
+    <h2>Auffälligkeiten pro Kühlhaube</h2>
+    <div id="kuehlAuffaelligkeiten"></div>
   </div>
 
   <div class="section">
@@ -80,155 +71,204 @@
 
   <script>
     function createAnlagenEingabe() {
-      const container = document.getElementById('anlagenfelder');
-      container.innerHTML = '';
-      const anzahl = parseInt(document.getElementById('anlagenanzahl').value);
-      if (!anzahl || isNaN(anzahl)) return;
+  const container = document.getElementById('anlagenfelder');
+  container.innerHTML = '';
+  const anzahl = parseInt(document.getElementById('anlagenanzahl').value);
+  if (!anzahl || isNaN(anzahl)) return;
 
-      for (let i = 0; i < anzahl; i++) {
-        const div = document.createElement('div');
-        div.className = 'anlage-input';
+  for (let i = 0; i < anzahl; i++) {
+    const div = document.createElement('div');
+    div.className = 'anlage-input';
 
-        const nummerInput = document.createElement('input');
-        nummerInput.type = 'text';
-        nummerInput.placeholder = `Anlage ${i + 1} – Anlagennummer`;
+    const nummerInput = document.createElement('input');
+    nummerInput.type = 'text';
+    nummerInput.placeholder = `Anlage ${i + 1} – Anlagennummer`;
 
-        const bezeichnungInput = document.createElement('input');
-        bezeichnungInput.type = 'text';
-        bezeichnungInput.placeholder = `Anlage ${i + 1} – Bezeichnung`;
+    const bezeichnungInput = document.createElement('input');
+    bezeichnungInput.type = 'text';
+    bezeichnungInput.placeholder = `Anlage ${i + 1} – Bezeichnung`;
 
-        const kundenBezInput = document.createElement('input');
-        kundenBezInput.type = 'text';
-        kundenBezInput.placeholder = `Anlage ${i + 1} – Kundenbezeichnung`;
+    const kundenBezInput = document.createElement('input');
+    kundenBezInput.type = 'text';
+    kundenBezInput.placeholder = `Anlage ${i + 1} – Kundenbezeichnung`;
 
-        const sockelAnzahlInput = document.createElement('input');
-        sockelAnzahlInput.type = 'number';
-        sockelAnzahlInput.placeholder = `Anlage ${i + 1} – Anzahl der Sockel`;
-
-        const sockelList = document.createElement('div');
-        sockelList.className = 'sockel-liste';
-
-        sockelAnzahlInput.addEventListener('input', () => {
-          sockelList.innerHTML = '';
-          const count = parseInt(sockelAnzahlInput.value);
-          if (!isNaN(count) && count > 0) {
-            for (let j = 0; j < count; j++) {
-              const sockelFeld = document.createElement('input');
-              sockelFeld.type = 'text';
-              sockelFeld.placeholder = `Sockelnummer ${j + 1}`;
-              sockelFeld.classList.add('sockelnummer');
-              sockelList.appendChild(sockelFeld);
-            }
-          }
-        });
-
-        div.appendChild(nummerInput);
-        div.appendChild(bezeichnungInput);
-        div.appendChild(kundenBezInput);
-        div.appendChild(sockelAnzahlInput);
-        div.appendChild(sockelList);
-
-        container.appendChild(div);
-      }
-    }
-
-    function createAuffaelligkeitenEingabe() {
-      const bereich = document.getElementById("sockelAuffaelligkeiten");
-      bereich.innerHTML = "";
-      const anlagen = document.querySelectorAll("#anlagenfelder .anlage-input");
-
-      anlagen.forEach((anlage, aIndex) => {
-        const anlageNummer = anlage.querySelectorAll("input")[0]?.value || `Anlage ${aIndex + 1}`;
-        const sockelNummern = anlage.querySelectorAll(".sockelnummer");
-
-        sockelNummern.forEach((feld, sIndex) => {
-          const nummer = feld.value || `Sockel ${sIndex + 1}`;
-          const label = document.createElement("label");
-          label.textContent = `${anlageNummer} – ${nummer}`;
-
-          const textarea = document.createElement("textarea");
-          textarea.rows = 2;
-          textarea.style.marginBottom = "1em";
-          textarea.className = "auff-text";
-          textarea.dataset.anlage = anlageNummer;
-          textarea.dataset.sockel = nummer;
-
-          bereich.appendChild(label);
-          bereich.appendChild(textarea);
-        });
-      });
-    }
-
-    window.addEventListener("input", (e) => {
-      if (e.target.matches(".sockelnummer")) {
-        createAuffaelligkeitenEingabe();
+    const sockelAnzahlInput = document.createElement('input');
+    sockelAnzahlInput.type = 'number';
+    sockelAnzahlInput.placeholder = `Anlage ${i + 1} – Anzahl der Sockel`;
+    const sockelList = document.createElement('div');
+    sockelList.className = 'sockel-liste';
+    sockelAnzahlInput.addEventListener('input', () => {
+      sockelList.innerHTML = '';
+      const count = parseInt(sockelAnzahlInput.value);
+      if (!isNaN(count) && count > 0) {
+        for (let j = 0; j < count; j++) {
+          const feld = document.createElement('input');
+          feld.type = 'text';
+          feld.placeholder = `Sockelnummer ${j + 1}`;
+          feld.classList.add('sockelnummer');
+          sockelList.appendChild(feld);
+        }
       }
     });
-  
+
+    const heizAnzahlInput = document.createElement('input');
+    heizAnzahlInput.type = 'number';
+    heizAnzahlInput.placeholder = `Anlage ${i + 1} – Anzahl der Heizhauben`;
+    const heizList = document.createElement('div');
+    heizList.className = 'heizhauben-liste';
+    heizAnzahlInput.addEventListener('input', () => {
+      heizList.innerHTML = '';
+      const count = parseInt(heizAnzahlInput.value);
+      if (!isNaN(count) && count > 0) {
+        for (let j = 0; j < count; j++) {
+          const feld = document.createElement('input');
+          feld.type = 'text';
+          feld.placeholder = `Heizhaube ${j + 1}`;
+          feld.classList.add('heizhaube');
+          heizList.appendChild(feld);
+        }
+      }
+    });
+
+    const kuehlAnzahlInput = document.createElement('input');
+    kuehlAnzahlInput.type = 'number';
+    kuehlAnzahlInput.placeholder = `Anlage ${i + 1} – Anzahl der Kühlhauben`;
+    const kuehlList = document.createElement('div');
+    kuehlList.className = 'kuehlhauben-liste';
+    kuehlAnzahlInput.addEventListener('input', () => {
+      kuehlList.innerHTML = '';
+      const count = parseInt(kuehlAnzahlInput.value);
+      if (!isNaN(count) && count > 0) {
+        for (let j = 0; j < count; j++) {
+          const feld = document.createElement('input');
+          feld.type = 'text';
+          feld.placeholder = `Kühlhaube ${j + 1}`;
+          feld.classList.add('kuehlhaube');
+          kuehlList.appendChild(feld);
+        }
+      }
+    });
+
+    div.appendChild(nummerInput);
+    div.appendChild(bezeichnungInput);
+    div.appendChild(kundenBezInput);
+    div.appendChild(sockelAnzahlInput);
+    div.appendChild(sockelList);
+    div.appendChild(heizAnzahlInput);
+    div.appendChild(heizList);
+    div.appendChild(kuehlAnzahlInput);
+    div.appendChild(kuehlList);
+
+    container.appendChild(div);
+  }
+}
+
     function updatePreview() {
       const psp = document.getElementById("psp")?.value || "";
       const sprache = document.getElementById("sprache")?.value || "";
+      let output = `PSP-Element: ${psp}\nSprache: ${sprache}\n\n`;
+
       const anlagen = document.querySelectorAll(".anlage-input");
-      let output = `PSP-Element: ${psp}
-Sprache: ${sprache}
-
-`;
-
-      anlagen.forEach((anlage, index) => {
+      anlagen.forEach((anlage, i) => {
         const inputs = anlage.querySelectorAll("input");
-        const nummer = inputs[0]?.value || "";
-        const bez = inputs[1]?.value || "";
-        const kunde = inputs[2]?.value || "";
-        const sockelAnzahl = inputs[3]?.value || "";
-        const sockelNummern = anlage.querySelectorAll(".sockelnummer");
+        output += `Anlage ${i + 1}:\n`;
+        output += `  - Anlagennummer: ${inputs[0]?.value || ""}\n`;
+        output += `  - Bezeichnung: ${inputs[1]?.value || ""}\n`;
+        output += `  - Kundenbezeichnung: ${inputs[2]?.value || ""}\n`;
 
-        output += `Anlage ${index + 1}:
-`;
-        output += `  - Nummer: ${nummer}
-`;
-        output += `  - Bezeichnung: ${bez}
-`;
-        output += `  - Kundenbezeichnung: ${kunde}
-`;
-        output += `  - Anzahl der Sockel: ${sockelAnzahl}
-`;
-        sockelNummern.forEach((feld, i) => {
-          output += `    - Sockelnummer ${i + 1}: ${feld.value}
-`;
+        const sockel = anlage.querySelectorAll(".sockelnummer");
+        sockel.forEach((feld, j) => {
+          output += `    - Sockelnummer ${j + 1}: ${feld.value}\n`;
+        });
+
+        const heiz = anlage.querySelectorAll(".heizhaube");
+        heiz.forEach((feld, j) => {
+          output += `    - Heizhaube ${j + 1}: ${feld.value}\n`;
+        });
+
+        const kuehl = anlage.querySelectorAll(".kuehlhaube");
+        kuehl.forEach((feld, j) => {
+          output += `    - Kühlhaube ${j + 1}: ${feld.value}\n`;
         });
       });
 
-      const checkboxen = document.querySelectorAll(".checkbox-group input[type='checkbox']");
-      output += `
-Anlagenangaben:
-`;
-      checkboxen.forEach(cb => {
-        const label = cb.parentElement.textContent.trim();
-        output += `${label}: ${cb.checked ? "Ja" : "Nein"}
-`;
-      });
-
-      const auff = document.querySelectorAll(".auff-text");
-      output += `
-Auffälligkeiten:
-`;
-      auff.forEach(feld => {
-        const anlage = feld.dataset.anlage;
-        const sockel = feld.dataset.sockel;
-        const text = feld.value.trim();
-        if (text) {
-          output += `- ${anlage} / ${sockel}: ${text}
-`;
+      output += `\nAuffälligkeiten pro Sockel:\n`;
+      document.querySelectorAll("#sockelAuffaelligkeiten .auff-text").forEach((feld) => {
+        if (feld.value.trim()) {
+          output += `- ${feld.dataset.anlage} / ${feld.dataset.sockel}: ${feld.value}\n`;
         }
       });
 
-      output += `
-----------------------------------------
-**Servicebericht**`;
+      output += `\nAuffälligkeiten pro Heizhaube:\n`;
+      document.querySelectorAll("#heizAuffaelligkeiten .auff-text").forEach((feld) => {
+        if (feld.value.trim()) {
+          output += `- ${feld.dataset.anlage} / ${feld.dataset.sockel}: ${feld.value}\n`;
+        }
+      });
+
+      output += `\nAuffälligkeiten pro Kühlhaube:\n`;
+      document.querySelectorAll("#kuehlAuffaelligkeiten .auff-text").forEach((feld) => {
+        if (feld.value.trim()) {
+          output += `- ${feld.dataset.anlage} / ${feld.dataset.sockel}: ${feld.value}\n`;
+        }
+      });
+
       document.getElementById("preview").value = output;
     }
 
-    document.getElementById("updatePreviewBtn").addEventListener("click", updatePreview);
-  </script>
+    document.getElementById("updatePreviewBtn")?.addEventListener("click", updatePreview);
+  function createAuffaelligkeitenEingabe() {
+  const bereiche = {
+    sockel: document.getElementById("sockelAuffaelligkeiten"),
+    heiz: document.getElementById("heizAuffaelligkeiten"),
+    kuehl: document.getElementById("kuehlAuffaelligkeiten")
+  };
+  bereiche.sockel.innerHTML = '';
+  bereiche.heiz.innerHTML = '';
+  bereiche.kuehl.innerHTML = '';
+
+  const anlagen = document.querySelectorAll(".anlage-input");
+  anlagen.forEach((anlage, index) => {
+    const anlageNummer = anlage.querySelector("input")?.value || `Anlage ${index + 1}`;
+
+    const renderFeld = (feld, labelText, target) => {
+      const label = document.createElement("label");
+      label.textContent = `${anlageNummer} – ${labelText}`;
+      const textarea = document.createElement("textarea");
+      textarea.rows = 2;
+      textarea.style.marginBottom = "1em";
+      textarea.className = "auff-text";
+      textarea.dataset.anlage = anlageNummer;
+      textarea.dataset.sockel = labelText;
+      target.appendChild(label);
+      target.appendChild(textarea);
+    };
+
+    anlage.querySelectorAll(".sockelnummer").forEach((feld, i) => {
+      renderFeld(feld, `Sockel ${i + 1}`, bereiche.sockel);
+    });
+    anlage.querySelectorAll(".heizhaube").forEach((feld, i) => {
+      renderFeld(feld, `Heizhaube ${i + 1}`, bereiche.heiz);
+    });
+    anlage.querySelectorAll(".kuehlhaube").forEach((feld, i) => {
+      renderFeld(feld, `Kühlhaube ${i + 1}`, bereiche.kuehl);
+    });
+  });
+}
+
+window.addEventListener("input", e => {
+  if (["sockelnummer", "heizhaube", "kuehlhaube"].some(cls => e.target.classList.contains(cls))) {
+    createAuffaelligkeitenEingabe();
+  }
+});
+document.getElementById("downloadBtn")?.addEventListener("click", () => {
+  const text = document.getElementById("preview").value;
+  const blob = new Blob([text], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Servicebericht.txt";
+  link.click();
+});
+</script>
 </body>
 </html>
